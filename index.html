@@ -14,7 +14,7 @@
     }
     /* 우측 상단의 관리자 링크 스타일 */
     #adminLink {
-      position: fixed;
+      position: absolute;
       top: 20px;
       right: 20px;
       text-decoration: underline;
@@ -22,11 +22,25 @@
       cursor: pointer;
       font-size: 16px;
     }
+    /* 좌측상단 로고 */
+    .logo-container {
+            position: absolute;
+            top: 30px;
+            left: 30px;
+            display: flex; /* 가로 정렬 */
+            gap: 20px; /* 로고 사이 간격 */
+        }
+
+    /* 개별 로고 스타일 */
+    .logo {
+        cursor: pointer;
+    }
     /* 세련된 헤더 박스 스타일 */
     .header-box {
-      background: linear-gradient(45deg, #f39c12, #e67e22);
+      position: static;
+      background: #f39c12;
       border-radius: 15px;
-      padding: 30px 20px;
+      padding: 25px 25px;
       margin-bottom: 20px;
       display: inline-block;
       box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
@@ -34,32 +48,29 @@
     .header-box h1 {
       margin: 0;
       color: white;
-      font-family: Georgia, serif;
+      font-family: 'Nanum gothic', sans-serif;
       font-size: 36px;
       text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
     }
-    .header-box h2 {
-      margin: 0;
-      color: #fff;
-      font-size: 20px;
-      font-style: italic;
-      margin-top: 10px;
-    }
     /* 사물함 그리드 */
     .locker-grid {
+      position: static;
       display: grid;
-      grid-template-columns: repeat(9, 1fr);
+      grid-template-columns: repeat(10, 1fr);
       gap: 10px;
       justify-content: center;
       margin: 20px 0;
     }
     .locker {
-      width: 60px;
-      height: 60px;
-      border: 2px solid #f39c12;
+      width: 70px;
+      height: 70px;
+      border: 3px solid #f39c12;
       background-color: #fff5e0;
+      display: flex;
+      justify-content: center;
       text-align: center;
-      font-size: 16px;
+      align-items: center;
+      font-size: 20px;
       cursor: pointer;
       transition: background-color 0.3s ease;
     }
@@ -147,19 +158,35 @@
       border: 1px solid #ccc;
       padding: 8px 12px;
     }
+    footer {
+    position: static;  /* 항상 화면 하단에 고정 */
+    bottom: 0;
+    width: 100%;
+    background-color: #333;
+    color: white;
+    text-align: center;
+    padding: 10px 0;
+    font-size: 14px;
+}
   </style>
 </head>
 <body>
   <!-- 우측 상단의 관리자 링크 -->
-  <div id="adminLink">관리자</div>
-
+  <div id="adminLink">관리 메뉴</div>
+  <!-- 로고 -->
+  <div class="logo-container">
+    <a href="index.html">
+        <img src="/images/KENTECH.png" alt="KENTECH" class="logo" width="175px" height="auto">
+    </a>
+    <a href="index.html">
+        <img src="/images/소설.png" alt="소설" class="logo" width="110px" height="auto">
+    </a>
+</div>
   <!-- 메인 페이지 (사물함 현황) -->
   <div id="mainContent">
     <!-- 세련된 제목 및 부제목 -->
     <div class="header-box">
       <h1>사물함 예약 시스템</h1>
-      <br>
-      <h1>총학생회 소설</h1>
     </div>
     <!-- 사물함 현황 -->
     <div id="lockerContainer" class="locker-grid"></div>
@@ -231,9 +258,9 @@
         locker.classList.add('locker');
         if (user) {
           locker.classList.add('reserved');
-          locker.textContent = `예약됨`;
+          locker.textContent = `예약완료`;
         } else {
-          locker.textContent = `사물함 ${index + 1}`;
+          locker.textContent = `${index + 1}`;
           locker.onclick = () => selectLocker(index);
         }
         container.appendChild(locker);
@@ -343,5 +370,11 @@
       }
     }
   </script>
+  <footer>
+    <p>© KENTECH 사물함 예약 시스템. All rights reserved.</p>
+    <p>Developed by 3기 강민채 (kangminchae@kentech.ac.kr), 3기 김대혁 (kimdaehyeok@kentech.ac.kr)</p>
+    <a href="https://github.com/rkdalsco/locker-reservation" target="_blank">Github Repository</a>
+</footer>
+
 </body>
 </html>
