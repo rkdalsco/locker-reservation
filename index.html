@@ -21,6 +21,11 @@
     <p id="timerMessage" style="color: red;"></p>
     <div id="lockerContainer" class="locker-grid" style="display: none;"></div>
 
+    <div>
+        <input type="password" id="resetPassword" placeholder="리셋 비밀번호">
+        <button onclick="resetLockers()">리셋</button>
+    </div>
+
     <script>
         // 예약 가능 시간 설정 (연, 월, 일, 시, 분)
         let openTime = new Date(2025, 1, 20, 8, 0); // 설정 가능한 예약 오픈 시간
@@ -52,6 +57,15 @@
             }
             currentUser = userId;
             document.getElementById('lockerContainer').style.display = 'grid';
+            loadLockers();
+        }
+
+        function loadLockers() {
+            // 로컬 스토리지에서 사용자 예약 정보 불러오기
+            const savedLockers = JSON.parse(localStorage.getItem('lockers')) || Array(162).fill(null);
+            savedLockers.forEach((user, index) => {
+                lockers[index] = user;
+            });
             renderLockers();
         }
 
@@ -82,7 +96,21 @@
                 return;
             }
             lockers[index] = currentUser;
+            localStorage.setItem('lockers', JSON.stringify(lockers)); // 예약 상태를 로컬 스토리지에 저장
             renderLockers();
+        }
+
+        function resetLockers() {
+            const resetPassword = document.getElementById('resetPassword').value;
+            if (resetPassword === 'kentech1234') {
+                localStorage.removeItem('lockers'); // 로컬 스토리지에서 예약 정보 삭제
+                alert('예약 상태가 리셋되었습니다.');
+                // 모든 사물함 상태 초기화
+                lockers.fill(null);
+                renderLockers();
+            } else {
+                alert('비밀번호가 틀렸습니다.');
+            }
         }
     </script>
 </body>
