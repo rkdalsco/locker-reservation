@@ -199,7 +199,7 @@
   </div>
 
   <!-- 메인 페이지 (사물함 현황) -->
-  <div id="mainContent">
+  <div id="mainContent" style="display:none;">
     <div class="header-box">
       <h1>사물함 예약 시스템</h1>
     </div>
@@ -246,6 +246,7 @@
             <th>사물함 번호</th>
             <th>학번</th>
             <th>이름</th>
+            <th>취소</th> <!-- 취소 버튼 열 추가 -->
           </tr>
         </thead>
         <tbody>
@@ -259,12 +260,32 @@
   </div>
 
   <script>
-    // 항상 162칸 배열로 초기화
+    // 예약 데이터를 저장한 배열 (샘플 데이터)
     let lockers = Array(162).fill(null);
     let currentLockerIndex = null;
     const adminRealPassword = 'kentech1234';
 
-    // localStorage에서 배열 불러오기(길이가 162가 아니면 새 배열로 저장)
+    // 시간 제한 설정: 2025년 3월 17일 오전 10시
+    function checkAccessTime() {
+      const allowedStartTime = new Date(2025, 2, 17, 10, 0);  // 2025년 3월 17일 오전 10시
+      const now = new Date();
+
+      if (now < allowedStartTime) {
+        // 접속이 허용되지 않은 경우, 사이트 내용을 숨기고 메시지를 표시
+        document.body.innerHTML = `
+          <div style="text-align: center; margin-top: 100px; font-size: 20px;">
+            <p>현재 사이트 접속이 제한되어 있습니다.</p>
+            <p>접속 가능 시간: ${allowedStartTime.toLocaleString("ko-KR")}</p>
+          </div>
+        `;
+      } else {
+        // 허용된 시간 이후에는 사이트 내용 표시
+        document.getElementById('mainContent').style.display = 'block';
+        loadLockers(); // 사물함 예약 시스템 로딩
+      }
+    }
+
+    // localStorage에서 배열 불러오기
     function loadLockers() {
       let savedLockers = JSON.parse(localStorage.getItem('lockers'));
       if (!Array.isArray(savedLockers) || savedLockers.length !== 162) {
@@ -321,12 +342,6 @@
       const studentName = document.getElementById('studentName').value;
       const lockerPassword = document.getElementById('lockerPassword').value;
 
-      // 비밀번호 검증
-      if (lockerPassword !== '1234') {
-        alert('비밀번호가 틀렸습니다.');
-        return;
-      }
-
       if (!studentId || !studentName || !lockerPassword) {
         alert('모든 정보를 입력해 주세요.');
         return;
@@ -342,6 +357,7 @@
       closePopup();
     }
 
+    // 관리자 비밀번호 확인 후 예약 목록 표시
     function verifyAdminPassword() {
       const inputPassword = document.getElementById('adminPassword').value;
       if (inputPassword === adminRealPassword) {
@@ -356,9 +372,11 @@
       }
     }
 
+    // 관리자 페이지에서 예약된 사물함 목록 표시
     function updateAdminTable() {
       const tbody = document.getElementById('reservationTable').getElementsByTagName('tbody')[0];
-      tbody.innerHTML = '';
+      tbody.innerHTML = ''; // 기존 테이블 내용 비우기
+
       lockers.forEach((reservation, index) => {
         if (reservation) {
           const row = document.createElement('tr');
@@ -368,14 +386,39 @@
           cellStudentId.textContent = reservation.studentId;
           const cellStudentName = document.createElement('td');
           cellStudentName.textContent = reservation.studentName;
+
+          // 취소 버튼 열 추가
+          const cellAction = document.createElement('td');
+          const cancelButton = document.createElement('button');
+          cancelButton.textContent = '취소';
+          cancelButton.onclick = function() {
+            cancelReservation(index); // 취소 함수 호출
+          };
+          cellAction.appendChild(cancelButton);
+
           row.appendChild(cellLocker);
           row.appendChild(cellStudentId);
           row.appendChild(cellStudentName);
+          row.appendChild(cellAction);
           tbody.appendChild(row);
         }
       });
     }
 
+    // 예약 취소 함수
+    function cancelReservation(index) {
+      const lockerNumber = index + 1;
+
+      if (confirm(`사물함 ${lockerNumber} 예약을 취소하시겠습니까?`)) {
+        lockers[index] = null; // 해당 예약 취소: null로 설정
+        localStorage.setItem('lockers', JSON.stringify(lockers)); // 저장된 상태 업데이트
+        alert(`사물함 ${lockerNumber} 예약이 취소되었습니다.`);
+        renderLockers(); // 사물함 그리드 상태를 새로 고침
+        updateAdminTable(); // 관리자 테이블도 업데이트
+      }
+    }
+
+    // 예약 상태 리셋
     function resetLockers() {
       if (!confirm("정말로 모든 예약 정보를 리셋하시겠습니까?")) return;
       lockers = Array(162).fill(null);
@@ -385,6 +428,7 @@
       updateAdminTable();
     }
 
+    // 관리자 페이지 뒤로가기
     function exitAdmin() {
       document.getElementById('mainContent').style.display = 'block';
       document.querySelector('.admin-container').style.display = 'none';
@@ -399,9 +443,11 @@
     });
 
     window.onload = function() {
+      checkAccessTime(); // 3월 17일 오전 10시 전에는 접속 차단
       loadLockers();
-    }
+    };
   </script>
+
   <footer>
     <p>© KENTECH 사물함 예약 시스템. All rights reserved.</p>
     <p>Developed by 3기 강민채 (kangminchae@kentech.ac.kr), 3기 김대혁 (kimdaehyeok@kentech.ac.kr)</p>
