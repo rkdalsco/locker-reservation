@@ -37,11 +37,13 @@
       border-radius: 15px;
       padding: 20px;
       margin-bottom: 40px;
+      display: inline-block;
       box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
     }
     .header-box h1 {
       margin: 0;
       color: white;
+      font-family: 'Nanum Gothic', sans-serif;
       font-size: 36px;
       text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
     }
@@ -70,7 +72,6 @@
       background-color: #fff5e0;
       display: flex;
       justify-content: center;
-      text-align: center;
       align-items: center;
       font-size: 20px;
       cursor: pointer;
@@ -158,6 +159,7 @@
       padding: 8px 12px;
     }
     footer {
+      position: static;
       bottom: 0;
       width: 100%;
       background-color: #333;
@@ -170,7 +172,6 @@
 </head>
 <body>
   <div id="adminLink">관리 메뉴</div>
-
   <div class="logo-container">
     <a href="https://kentech.ac.kr/main.do" target="_blank">
       <img src="images/KENTECH.png" alt="KENTECH" class="logo" width="175px" height="auto">
@@ -225,7 +226,7 @@
             <th>사물함 번호</th>
             <th>학번</th>
             <th>이름</th>
-            <th>취소</th> <!-- 취소 버튼 열 추가 -->
+            <th>취소</th>
           </tr>
         </thead>
         <tbody>
@@ -322,7 +323,6 @@
         alert('모든 정보를 입력해 주세요.');
         return;
       }
-
       if (lockers[currentLockerIndex] && lockers[currentLockerIndex].reserved) {
         alert('이미 예약된 사물함입니다.');
         return;
@@ -344,7 +344,7 @@
       .then(response => response.json())
       .then(data => {
         alert('사물함 예약이 완료되었습니다!');
-        renderLockers();
+        renderLockers();  // 예약 후 그리드를 새로고침하여 상태 반영
         closePopup();
       })
       .catch(error => console.error('Error updating data.json:', error));
@@ -353,7 +353,6 @@
     function resetLockers() {
       if (!confirm("정말로 모든 예약 정보를 리셋하시겠습니까?")) return;
       lockers = Array(162).fill(null);
-
       fetch('https://api.github.com/repos/yourusername/yourrepo/contents/data.json', {
         method: 'PUT',
         headers: {
