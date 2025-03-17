@@ -265,13 +265,13 @@
   <script>
     // Firebase 설정
     const firebaseConfig = {
-      apiKey: "AIzaSyCD_LnKUyQHpUEOTh4WpS0tmMXVhw6frqE",
-      authDomain: "locker-reservation-e621b.firebaseapp.com",
-      projectId: "locker-reservation-e621b",
-      storageBucket: "locker-reservation-e621b.firebasestorage.app",
-      messagingSenderId: "796300220242",
-      appId: "1:796300220242:web:9a2ff410834397af7f4c8b",
-      measurementId: "G-VDER7M360E"
+        apiKey: "AIzaSyCD_LnKUyQHpUEOTh4WpS0tmMXVhw6frqE",
+  	authDomain: "locker-reservation-e621b.firebaseapp.com",
+  	projectId: "locker-reservation-e621b",
+  	storageBucket: "locker-reservation-e621b.firebasestorage.app",
+  	messagingSenderId: "796300220242",
+  	appId: "1:796300220242:web:9a2ff410834397af7f4c8b",
+  	measurementId: "G-VDER7M360E"
     };
 
     const app = firebase.initializeApp(firebaseConfig);
@@ -282,22 +282,22 @@
     const adminRealPassword = 'kentech1234';
 
     function checkAccessTime() {
-      const allowedStartTime = new Date(2025, 2, 17, 10, 0);  // 2025년 3월 17일 오전 10시
+      const allowedStartTime = new Date(2025, 2, 16, 10, 0);  // 2025년 3월 17일 오전 10시
       const now = new Date();
 
       if (now < allowedStartTime) {
-        document.body.innerHTML = 
-          `<div style="text-align: center; margin-top: 100px; font-size: 20px;">
+        document.body.innerHTML = `
+          <div style="text-align: center; margin-top: 100px; font-size: 20px;">
             <p>현재 사이트 접속이 제한되어 있습니다.</p>
             <p>접속 가능 시간: ${allowedStartTime.toLocaleString("ko-KR")}</p>
-          </div>`;
+          </div>
+        `;
       } else {
         document.getElementById('mainContent').style.display = 'block';
-        loadLockers(); 
+        loadLockers();
       }
     }
 
-    // Firebase에서 데이터 읽기
     function loadLockers() {
       const lockersRef = firebase.database().ref('lockers');
       lockersRef.on('value', function(snapshot) {
@@ -364,10 +364,7 @@
         alert('이미 예약된 사물함입니다.');
         return;
       }
-
       lockers[currentLockerIndex] = { studentId, studentName, lockerPassword, timestamp: new Date() };
-
-      // Firebase에 데이터 저장
       firebase.database().ref('lockers/' + currentLockerIndex).set(lockers[currentLockerIndex]);
 
       alert('사물함 예약이 완료되었습니다!');
@@ -375,15 +372,80 @@
       closePopup();
     }
 
+    function verifyAdminPassword() {
+      const inputPassword = document.getElementById('adminPassword').value;
+      if (inputPassword === adminRealPassword) {
+        alert('비밀번호가 맞습니다.');
+        document.getElementById('resetButton').style.display = 'inline-block';
+        document.getElementById('adminTableContainer').style.display = 'block';
+        updateAdminTable();
+      } else {
+        alert('비밀번호가 틀렸습니다.');
+        document.getElementById('resetButton').style.display = 'none';
+        document.getElementById('adminTableContainer').style.display = 'none';
+      }
+    }
+
+    function updateAdminTable() {
+      const tbody = document.getElementById('reservationTable').getElementsByTagName('tbody')[0];
+      tbody.innerHTML = '';
+
+      lockers.forEach((reservation, index) => {
+        if (reservation) {
+          const row = document.createElement('tr');
+          const cellLocker = document.createElement('td');
+          cellLocker.textContent = index + 1;
+          const cellStudentId = document.createElement('td');
+          cellStudentId.textContent = reservation.studentId;
+          const cellStudentName = document.createElement('td');
+          cellStudentName.textContent = reservation.studentName;
+
+          const cellAction = document.createElement('td');
+          const cancelButton = document.createElement('button');
+          cancelButton.textContent = '취소';
+          cancelButton.onclick = function() {
+            cancelReservation(index);
+          };
+          cellAction.appendChild(cancelButton);
+
+          row.appendChild(cellLocker);
+          row.appendChild(cellStudentId);
+          row.appendChild(cellStudentName);
+          row.appendChild(cellAction);
+          tbody.appendChild(row);
+        }
+      });
+    }
+
+    function cancelReservation(index) {
+      const lockerNumber = index + 1;
+
+      if (confirm(`사물함 ${lockerNumber} 예약을 취소하시겠습니까?`)) {
+        lockers[index] = null;
+        firebase.database().ref('lockers/' + index).set(null);
+
+        alert(`사물함 ${lockerNumber} 예약이 취소되었습니다.`);
+        renderLockers();
+        updateAdminTable();
+      }
+    }
+
     function resetLockers() {
       if (!confirm("정말로 모든 예약 정보를 리셋하시겠습니까?")) return;
 
-      // Firebase에서 모든 데이터 삭제
-      firebase.database().ref('lockers').remove();
-
       lockers = Array(162).fill(null);
+      firebase.database().ref('lockers').set(lockers);
+
       alert('예약 상태가 리셋되었습니다.');
       renderLockers();
+    }
+
+    function exitAdmin() {
+      document.getElementById('mainContent').style.display = 'block';
+      document.querySelector('.admin-container').style.display = 'none';
+      document.getElementById('adminPassword').value = '';
+      document.getElementById('resetButton').style.display = 'none';
+      document.getElementById('adminTableContainer').style.display = 'none';
     }
 
     document.getElementById('adminLink').addEventListener('click', function() {
