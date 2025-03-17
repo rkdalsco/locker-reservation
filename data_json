@@ -1,4 +1,17 @@
 [
-  { "lockerNumber": 1, "studentId": "20220101", "studentName": "강민채" },
-  { "lockerNumber": 2, "studentId": "20220102", "studentName": "김대혁" }
+  {
+    "lockerNumber": 1,
+    "reserved": false,
+    "studentId": "",
+    "studentName": "",
+    "reservationTime": ""
+  },
+  {
+    "lockerNumber": 2,
+    "reserved": false,
+    "studentId": "",
+    "studentName": "",
+    "reservationTime": ""
+  },
+  // ... 추가된 사물함
 ]
