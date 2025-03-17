@@ -5,15 +5,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>사물함 예약 시스템</title>
   <link href="https://fonts.googleapis.com/css2?family=Nanum+Gothic&display=swap" rel="stylesheet">
-   <style>
+  <style>
     body {
-      font-family: 'Nanum Gothic', sans-serif; /* Nanum Gothic 폰트 적용 */
+      font-family: 'Nanum Gothic', sans-serif;
       background-color: #f8f8f8;
       color: #333;
       text-align: center;
       padding: 20px;
     }
-    /* 우측 상단의 관리자 링크 스타일 */
     #adminLink {
       position: absolute;
       top: 20px;
@@ -23,24 +22,20 @@
       cursor: pointer;
       font-size: 16px;
     }
-    /* 좌측상단 로고 */
     .logo-container {
       position: absolute;
       top: 30px;
       left: 30px;
-      display: flex; /* 가로 정렬 */
-      gap: 20px; /* 로고 사이 간격 */
+      display: flex;
+      gap: 20px;
     }
-    /* 개별 로고 스타일 */
     .logo {
       cursor: pointer;
     }
-    /* 세련된 헤더 박스 스타일 */
     .header-box {
-      position: static;
       background: #f39c12;
       border-radius: 15px;
-      padding: 20px 20px;
+      padding: 20px;
       margin-bottom: 40px;
       display: inline-block;
       box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
@@ -54,20 +49,16 @@
     }
     .locker-group {
       display: flex;
-      flex-direction: column; /* 세로로 정렬 */
-      align-items: center; /* 가운데 정렬 */
-      margin-bottom: 20px; /* 그룹 간 간격 */
+      flex-direction: column;
+      align-items: center;
+      margin-bottom: 20px;
     }
-
     .locker-group-title {
-      margin-bottom: 10px; /* 제목과 그리드 사이 간격 */
+      margin-bottom: 10px;
       font-size: 24px;
       font-weight: bold;
     }
-
-    /* 사물함 그리드 */
     .locker-grid {
-      position: static;
       display: grid;
       grid-template-columns: repeat(10, 1fr);
       gap: 10px;
@@ -81,7 +72,6 @@
       background-color: #fff5e0;
       display: flex;
       justify-content: center;
-      text-align: center;
       align-items: center;
       font-size: 20px;
       cursor: pointer;
@@ -100,7 +90,6 @@
       background-color: #f39c12;
       color: white;
     }
-    /* 사물함 예약 폼 */
     .reservation-popup {
       display: none;
       position: fixed;
@@ -136,7 +125,6 @@
     .reservation-popup button:hover {
       background-color: #e67e22;
     }
-    /* 관리자 페이지 (기본 숨김) */
     .admin-container {
       display: none;
       margin-top: 40px;
@@ -162,7 +150,6 @@
     .admin-container button:hover {
       background-color: #c0392b;
     }
-    /* 테이블 스타일 */
     table {
       margin: 0 auto;
       border-collapse: collapse;
@@ -172,7 +159,7 @@
       padding: 8px 12px;
     }
     footer {
-      position: static;  /* 항상 화면 하단에 고정 */
+      position: static;
       bottom: 0;
       width: 100%;
       background-color: #333;
@@ -182,14 +169,9 @@
       font-size: 14px;
     }
   </style>
-
 </head>
 <body>
-<body>
-  <!-- 우측 상단의 관리자 링크 -->
   <div id="adminLink">관리 메뉴</div>
-
-  <!-- 로고 -->
   <div class="logo-container">
     <a href="https://kentech.ac.kr/main.do" target="_blank">
       <img src="images/KENTECH.png" alt="KENTECH" class="logo" width="175px" height="auto">
@@ -199,7 +181,6 @@
     </a>
   </div>
 
-  <!-- 메인 페이지 (사물함 현황) -->
   <div id="mainContent" style="display:none;">
     <div class="header-box">
       <h1>사물함 예약 시스템</h1>
@@ -221,7 +202,6 @@
     </div>
   </div>
 
-  <!-- 사물함 예약 폼 (팝업창) -->
   <div id="reservationForm" class="reservation-popup">
     <h3>사물함 예약</h3>
     <input type="text" id="studentId" placeholder="학번" required><br>
@@ -231,7 +211,6 @@
     <button onclick="closePopup()">취소</button>
   </div>
 
-  <!-- 관리자 페이지 -->
   <div class="admin-container">
     <h3>관리자 페이지</h3>
     <input type="password" id="adminPassword" placeholder="비밀번호"><br>
@@ -247,7 +226,7 @@
             <th>사물함 번호</th>
             <th>학번</th>
             <th>이름</th>
-            <th>취소</th> <!-- 취소 버튼 열 추가 -->
+            <th>취소</th>
           </tr>
         </thead>
         <tbody>
@@ -261,18 +240,15 @@
   </div>
 
   <script>
-    // 예약 데이터를 저장한 배열 (샘플 데이터)
     let lockers = Array(162).fill(null);
     let currentLockerIndex = null;
     const adminRealPassword = 'kentech1234';
 
-    // 시간 제한 설정: 2025년 3월 17일 오전 10시
     function checkAccessTime() {
-      const allowedStartTime = new Date(2025, 2, 16, 10, 0);  // 2025년 3월 17일 오전 10시
+      const allowedStartTime = new Date(2025, 2, 16, 10, 0);
       const now = new Date();
 
       if (now < allowedStartTime) {
-        // 접속이 허용되지 않은 경우, 사이트 내용을 숨기고 메시지를 표시
         document.body.innerHTML = `
           <div style="text-align: center; margin-top: 100px; font-size: 20px;">
             <p>현재 사이트 접속이 제한되어 있습니다.</p>
@@ -280,24 +256,21 @@
           </div>
         `;
       } else {
-        // 허용된 시간 이후에는 사이트 내용 표시
         document.getElementById('mainContent').style.display = 'block';
-        loadLockers(); // 사물함 예약 시스템 로딩
+        loadLockers();
       }
     }
 
-    // localStorage에서 배열 불러오기
     function loadLockers() {
-      let savedLockers = JSON.parse(localStorage.getItem('lockers'));
-      if (!Array.isArray(savedLockers) || savedLockers.length !== 162) {
-        savedLockers = Array(162).fill(null);
-        localStorage.setItem('lockers', JSON.stringify(savedLockers));
-      }
-      lockers = savedLockers;
-      renderLockers();
+      fetch('https://raw.githubusercontent.com/yourusername/yourrepo/main/data.json')
+        .then(response => response.json())
+        .then(data => {
+          lockers = data;
+          renderLockers();
+        })
+        .catch(error => console.error('Error fetching data:', error));
     }
 
-    // 0~161 인덱스를 순회하여 그룹별 컨테이너에 추가
     function renderLockers() {
       const container1 = document.getElementById('lockerContainer1');
       const container2 = document.getElementById('lockerContainer2');
@@ -305,16 +278,19 @@
       container1.innerHTML = '';
       container2.innerHTML = '';
       container3.innerHTML = '';
-      for (let i = 0; i < 162; i++) {
+
+      for (let i = 0; i < lockers.length; i++) {
         const locker = document.createElement('div');
         locker.classList.add('locker');
-        if (lockers[i]) {
+
+        if (lockers[i] && lockers[i].reserved) {
           locker.classList.add('reserved');
           locker.textContent = '예약됨';
         } else {
           locker.textContent = `사물함 ${i + 1}`;
           locker.onclick = () => selectLocker(i);
         }
+
         if (i < 81) {
           container1.appendChild(locker);
         } else if (i < 120) {
@@ -326,7 +302,7 @@
     }
 
     function selectLocker(index) {
-      if (lockers[index]) {
+      if (lockers[index] && lockers[index].reserved) {
         alert('이미 예약된 사물함입니다.');
         return;
       }
@@ -347,89 +323,55 @@
         alert('모든 정보를 입력해 주세요.');
         return;
       }
-      if (lockers[currentLockerIndex]) {
+      if (lockers[currentLockerIndex] && lockers[currentLockerIndex].reserved) {
         alert('이미 예약된 사물함입니다.');
         return;
       }
-      lockers[currentLockerIndex] = { studentId, studentName, lockerPassword, timestamp: new Date() };
-      localStorage.setItem('lockers', JSON.stringify(lockers));
-      alert('사물함 예약이 완료되었습니다!');
-      renderLockers();
-      closePopup();
+
+      lockers[currentLockerIndex] = { studentId, studentName, lockerPassword, reserved: true };
+
+      fetch('https://api.github.com/repos/yourusername/yourrepo/contents/data.json', {
+        method: 'PUT',
+        headers: {
+          'Authorization': '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',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          message: 'Updated locker reservation',
+          content: btoa(JSON.stringify(lockers))
+        })
+      })
+      .then(response => response.json())
+      .then(data => {
+        alert('사물함 예약이 완료되었습니다!');
+        renderLockers();
+        closePopup();
+      })
+      .catch(error => console.error('Error updating data.json:', error));
     }
 
-    // 관리자 비밀번호 확인 후 예약 목록 표시
-    function verifyAdminPassword() {
-      const inputPassword = document.getElementById('adminPassword').value;
-      if (inputPassword === adminRealPassword) {
-        alert('비밀번호가 맞습니다.');
-        document.getElementById('resetButton').style.display = 'inline-block';
-        document.getElementById('adminTableContainer').style.display = 'block';
-        updateAdminTable();
-      } else {
-        alert('비밀번호가 틀렸습니다.');
-        document.getElementById('resetButton').style.display = 'none';
-        document.getElementById('adminTableContainer').style.display = 'none';
-      }
-    }
-
-    // 관리자 페이지에서 예약된 사물함 목록 표시
-    function updateAdminTable() {
-      const tbody = document.getElementById('reservationTable').getElementsByTagName('tbody')[0];
-      tbody.innerHTML = ''; // 기존 테이블 내용 비우기
-
-      lockers.forEach((reservation, index) => {
-        if (reservation) {
-          const row = document.createElement('tr');
-          const cellLocker = document.createElement('td');
-          cellLocker.textContent = index + 1;
-          const cellStudentId = document.createElement('td');
-          cellStudentId.textContent = reservation.studentId;
-          const cellStudentName = document.createElement('td');
-          cellStudentName.textContent = reservation.studentName;
-
-          // 취소 버튼 열 추가
-          const cellAction = document.createElement('td');
-          const cancelButton = document.createElement('button');
-          cancelButton.textContent = '취소';
-          cancelButton.onclick = function() {
-            cancelReservation(index); // 취소 함수 호출
-          };
-          cellAction.appendChild(cancelButton);
-
-          row.appendChild(cellLocker);
-          row.appendChild(cellStudentId);
-          row.appendChild(cellStudentName);
-          row.appendChild(cellAction);
-          tbody.appendChild(row);
-        }
-      });
-    }
-
-    // 예약 취소 함수
-    function cancelReservation(index) {
-      const lockerNumber = index + 1;
-
-      if (confirm(`사물함 ${lockerNumber} 예약을 취소하시겠습니까?`)) {
-        lockers[index] = null; // 해당 예약 취소: null로 설정
-        localStorage.setItem('lockers', JSON.stringify(lockers)); // 저장된 상태 업데이트
-        alert(`사물함 ${lockerNumber} 예약이 취소되었습니다.`);
-        renderLockers(); // 사물함 그리드 상태를 새로 고침
-        updateAdminTable(); // 관리자 테이블도 업데이트
-      }
-    }
-
-    // 예약 상태 리셋
     function resetLockers() {
       if (!confirm("정말로 모든 예약 정보를 리셋하시겠습니까?")) return;
       lockers = Array(162).fill(null);
-      localStorage.setItem('lockers', JSON.stringify(lockers));
-      alert('예약 상태가 리셋되었습니다.');
-      renderLockers();
-      updateAdminTable();
+      fetch('https://api.github.com/repos/yourusername/yourrepo/contents/data.json', {
+        method: 'PUT',
+        headers: {
+          'Authorization': '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',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          message: 'Reset lockers',
+          content: btoa(JSON.stringify(lockers))
+        })
+      })
+      .then(response => response.json())
+      .then(data => {
+        alert('예약 상태가 리셋되었습니다.');
+        renderLockers();
+      })
+      .catch(error => console.error('Error resetting data.json:', error));
     }
 
-    // 관리자 페이지 뒤로가기
     function exitAdmin() {
       document.getElementById('mainContent').style.display = 'block';
       document.querySelector('.admin-container').style.display = 'none';
@@ -444,112 +386,12 @@
     });
 
     window.onload = function() {
-      checkAccessTime(); // 3월 17일 오전 10시 전에는 접속 차단
+      checkAccessTime();
       loadLockers();
     };
   </script>
-<!-- 관리자 링크, 로고, 사물함 예약 폼 등은 그대로 유지 -->
 
-  <script>
-    const token = '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';  // 여기에 복사한 GitHub Personal Access Token을 입력하세요
-    const repoOwner = 'rkdalsco';  // GitHub 사용자 이름
-    const repoName = 'locker-reservation';  // GitHub 저장소 이름
-    const filePath = 'data.json';  // 저장할 파일 경로
-
-    // GitHub API로 데이터를 업데이트하는 함수
-    function updateGitHubData(data) {
-      const apiUrl = `https://api.github.com/repos/${repoOwner}/${repoName}/contents/${filePath}`;
-      const encodedData = btoa(JSON.stringify(data));  // 데이터를 base64로 인코딩
-      
-      fetch(apiUrl, {
-        method: 'GET',
-        headers: {
-          'Authorization': `token ${token}`,
-          'Accept': 'application/vnd.github.v3+json'
-        }
-      })
-      .then(response => response.json())
-      .then(data => {
-        const sha = data.sha;
-
-        fetch(apiUrl, {
-          method: 'PUT',
-          headers: {
-            'Authorization': `token ${token}`,
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            message: 'Update locker reservation data',
-            content: encodedData,
-            sha: sha  // 기존 파일의 SHA
-          })
-        })
-        .then(response => response.json())
-        .then(data => {
-          console.log('GitHub data updated successfully', data);
-        })
-        .catch(error => {
-          console.error('Error updating data on GitHub', error);
-        });
-      })
-      .catch(error => {
-        console.error('Error fetching file from GitHub', error);
-      });
-    }
-
-    // 데이터를 GitHub에서 불러오는 함수 (초기 로딩)
-    function loadLockersFromGitHub() {
-      const apiUrl = `https://api.github.com/repos/${repoOwner}/${repoName}/contents/${filePath}`;
-      
-      fetch(apiUrl, {
-        method: 'GET',
-        headers: {
-          'Authorization': `token ${token}`,
-          'Accept': 'application/vnd.github.v3+json'
-        }
-      })
-      .then(response => response.json())
-      .then(data => {
-        if (data.content) {
-          const decodedData = atob(data.content);
-          lockers = JSON.parse(decodedData);  // GitHub에서 가져온 데이터를 JSON으로 파싱
-          renderLockers();
-        } else {
-          lockers = Array(162).fill(null);  // 데이터가 없으면 빈 배열로 초기화
-          renderLockers();
-        }
-      })
-      .catch(error => {
-        console.error('Error loading data from GitHub', error);
-      });
-    }
-
-    // 데이터 업데이트 후 GitHub에 저장
-    function reserveLocker() {
-      const studentId = document.getElementById('studentId').value;
-      const studentName = document.getElementById('studentName').value;
-      const lockerPassword = document.getElementById('lockerPassword').value;
-
-      if (!studentId || !studentName || !lockerPassword) {
-        alert('모든 정보를 입력해 주세요.');
-        return;
-      }
-      lockers[currentLockerIndex] = { studentId, studentName, lockerPassword, timestamp: new Date() };
-
-      updateGitHubData(lockers);  // GitHub에 예약 데이터를 업데이트
-      alert('사물함 예약이 완료되었습니다!');
-      renderLockers();
-      closePopup();
-    }
-
-    // 페이지 로딩 시 GitHub에서 데이터 로딩
-    window.onload = function() {
-      checkAccessTime();
-      loadLockersFromGitHub();  // GitHub에서 데이터를 불러오기
-    };
-  </script>
-
-   <footer>
+  <footer>
     <p>© KENTECH 사물함 예약 시스템. All rights reserved.</p>
     <p>Developed by 3기 강민채 (kangminchae@kentech.ac.kr), 3기 김대혁 (kimdaehyeok@kentech.ac.kr)</p>
   </footer>
