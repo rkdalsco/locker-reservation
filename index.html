@@ -272,12 +272,12 @@
 
       if (now < allowedStartTime) {
         // 접속이 허용되지 않은 경우, 사이트 내용을 숨기고 메시지를 표시
-        document.body.innerHTML = `
+        document.body.innerHTML = 
           <div style="text-align: center; margin-top: 100px; font-size: 20px;">
             <p>현재 사이트 접속이 제한되어 있습니다.</p>
             <p>접속 가능 시간: ${allowedStartTime.toLocaleString("ko-KR")}</p>
           </div>
-        `;
+        ;
       } else {
         // 허용된 시간 이후에는 사이트 내용 표시
         document.getElementById('mainContent').style.display = 'block';
@@ -311,7 +311,7 @@
           locker.classList.add('reserved');
           locker.textContent = '예약됨';
         } else {
-          locker.textContent = `사물함 ${i + 1}`;
+          locker.textContent = 사물함 ${i + 1};
           locker.onclick = () => selectLocker(i);
         }
         if (i < 81) {
@@ -409,10 +409,10 @@
     function cancelReservation(index) {
       const lockerNumber = index + 1;
 
-      if (confirm(`사물함 ${lockerNumber} 예약을 취소하시겠습니까?`)) {
+      if (confirm(사물함 ${lockerNumber} 예약을 취소하시겠습니까?)) {
         lockers[index] = null; // 해당 예약 취소: null로 설정
         localStorage.setItem('lockers', JSON.stringify(lockers)); // 저장된 상태 업데이트
-        alert(`사물함 ${lockerNumber} 예약이 취소되었습니다.`);
+        alert(사물함 ${lockerNumber} 예약이 취소되었습니다.);
         renderLockers(); // 사물함 그리드 상태를 새로 고침
         updateAdminTable(); // 관리자 테이블도 업데이트
       }
@@ -452,5 +452,90 @@
     <p>© KENTECH 사물함 예약 시스템. All rights reserved.</p>
     <p>Developed by 3기 강민채 (kangminchae@kentech.ac.kr), 3기 김대혁 (kimdaehyeok@kentech.ac.kr)</p>
   </footer>
+  
+  <script src="/socket.io/socket.io.js"></script>
+<script>
+  const socket = io();
+
+  // 서버에서 예약 업데이트 수신
+  socket.on('reservation', (reservation) => {
+    alert('새로운 예약이 추가되었습니다!');
+    loadLockers(); // 사물함 상태를 새로고침
+  });
+
+  // 사물함 상태 로드 함수 (서버에서 가져오기)
+  async function loadLockers() {
+    const response = await fetch('/lockers');
+    const lockers = await response.json();
+
+    const container1 = document.getElementById('lockerContainer1');
+    const container2 = document.getElementById('lockerContainer2');
+    const container3 = document.getElementById('lockerContainer3');
+    container1.innerHTML = '';
+    container2.innerHTML = '';
+    container3.innerHTML = '';
+
+    lockers.forEach((locker) => {
+      const lockerElement = document.createElement('div');
+      lockerElement.classList.add('locker');
+      if (locker.studentId) {
+        lockerElement.classList.add('reserved');
+        lockerElement.textContent = `예약됨`;
+      } else {
+        lockerElement.textContent = `사물함 ${locker.lockerNumber}`;
+        lockerElement.onclick = () => selectLocker(locker.lockerNumber);
+      }
+
+      if (locker.lockerNumber <= 81) {
+        container1.appendChild(lockerElement);
+      } else if (locker.lockerNumber <= 120) {
+        container2.appendChild(lockerElement);
+      } else {
+        container3.appendChild(lockerElement);
+      }
+    });
+  }
+
+  // 예약 함수 수정 (서버에 POST 요청 보내기)
+  async function reserveLocker() {
+    const studentId = document.getElementById('studentId').value;
+    const studentName = document.getElementById('studentName').value;
+    const lockerPassword = document.getElementById('lockerPassword').value;
+
+    if (!studentId || !studentName || !lockerPassword) {
+      alert('모든 정보를 입력해 주세요.');
+      return;
+    }
+    if (lockers[currentLockerIndex]) {
+      alert('이미 예약된 사물함입니다.');
+      return;
+    }
+
+    // 서버로 예약 정보 전송
+    const response = await fetch('/reserve', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        lockerNumber: currentLockerIndex + 1,
+        studentId,
+        studentName,
+        password: lockerPassword
+      })
+    });
+
+    if (response.ok) {
+      alert('사물함 예약이 완료되었습니다!');
+      loadLockers();
+      closePopup();
+    } else {
+      const errorMessage = await response.text();
+      alert(errorMessage);
+    }
+  }
+
+  window.onload = function() {
+    loadLockers();
+  };
+</script>
 </body>
 </html>
