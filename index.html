@@ -286,6 +286,7 @@
         if (lockers[i] && lockers[i].reserved) {
           locker.classList.add('reserved');
           locker.textContent = '예약됨';
+          locker.onclick = null; // 예약된 사물함은 클릭할 수 없도록
         } else {
           locker.textContent = `사물함 ${i + 1}`;
           locker.onclick = () => selectLocker(i);
@@ -344,7 +345,7 @@
       .then(response => response.json())
       .then(data => {
         alert('사물함 예약이 완료되었습니다!');
-        renderLockers();  // 예약 후 그리드를 새로고침하여 상태 반영
+        renderLockers();
         closePopup();
       })
       .catch(error => console.error('Error updating data.json:', error));
