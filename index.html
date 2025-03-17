@@ -271,34 +271,37 @@
     }
 
     function renderLockers() {
-      const container1 = document.getElementById('lockerContainer1');
-      const container2 = document.getElementById('lockerContainer2');
-      const container3 = document.getElementById('lockerContainer3');
-      container1.innerHTML = '';
-      container2.innerHTML = '';
-      container3.innerHTML = '';
+  const container1 = document.getElementById('lockerContainer1');
+  const container2 = document.getElementById('lockerContainer2');
+  const container3 = document.getElementById('lockerContainer3');
+  container1.innerHTML = '';
+  container2.innerHTML = '';
+  container3.innerHTML = '';
 
-      for (let i = 0; i < lockers.length; i++) {
-        const locker = document.createElement('div');
-        locker.classList.add('locker');
+  // 0~161 인덱스를 순회하여 그룹별 컨테이너에 추가
+  for (let i = 0; i < lockers.length; i++) {
+    const locker = document.createElement('div');
+    locker.classList.add('locker');
 
-        if (lockers[i] && lockers[i].reserved) {
-          locker.classList.add('reserved');
-          locker.textContent = '예약됨';
-        } else {
-          locker.textContent = `사물함 ${i + 1}`;
-          locker.onclick = () => selectLocker(i);
-        }
-
-        if (i < 81) {
-          container1.appendChild(locker);
-        } else if (i < 120) {
-          container2.appendChild(locker);
-        } else {
-          container3.appendChild(locker);
-        }
-      }
+    // 사물함 예약 상태 반영
+    if (lockers[i] && lockers[i].reserved) {
+      locker.classList.add('reserved');
+      locker.textContent = '예약됨';
+    } else {
+      locker.textContent = `사물함 ${i + 1}`;
+      locker.onclick = () => selectLocker(i); // 예약하기 위한 클릭 이벤트
     }
+
+    // 0 ~ 81번 사물함은 container1에, 82 ~ 120번은 container2에, 121 ~ 162번은 container3에
+    if (i < 81) {
+      container1.appendChild(locker);
+    } else if (i < 120) {
+      container2.appendChild(locker);
+    } else {
+      container3.appendChild(locker);
+    }
+  }
+}
 
     function selectLocker(index) {
       if (lockers[index] && lockers[index].reserved) {
