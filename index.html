@@ -4,9 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>사물함 예약 시스템</title>
-  <!-- Google Fonts에서 Nanum Gothic 폰트를 가져옵니다 -->
   <link href="https://fonts.googleapis.com/css2?family=Nanum+Gothic&display=swap" rel="stylesheet">
-  <style>
+   <style>
     body {
       font-family: 'Nanum Gothic', sans-serif; /* Nanum Gothic 폰트 적용 */
       background-color: #f8f8f8;
@@ -183,7 +182,9 @@
       font-size: 14px;
     }
   </style>
+
 </head>
+<body>
 <body>
   <!-- 우측 상단의 관리자 링크 -->
   <div id="adminLink">관리 메뉴</div>
@@ -447,8 +448,108 @@
       loadLockers();
     };
   </script>
+<!-- 관리자 링크, 로고, 사물함 예약 폼 등은 그대로 유지 -->
 
-  <footer>
+  <script>
+    const token = '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';  // 여기에 복사한 GitHub Personal Access Token을 입력하세요
+    const repoOwner = 'rkdalsco';  // GitHub 사용자 이름
+    const repoName = 'locker-reservation';  // GitHub 저장소 이름
+    const filePath = 'data.json';  // 저장할 파일 경로
+
+    // GitHub API로 데이터를 업데이트하는 함수
+    function updateGitHubData(data) {
+      const apiUrl = `https://api.github.com/repos/${repoOwner}/${repoName}/contents/${filePath}`;
+      const encodedData = btoa(JSON.stringify(data));  // 데이터를 base64로 인코딩
+      
+      fetch(apiUrl, {
+        method: 'GET',
+        headers: {
+          'Authorization': `token ${token}`,
+          'Accept': 'application/vnd.github.v3+json'
+        }
+      })
+      .then(response => response.json())
+      .then(data => {
+        const sha = data.sha;
+
+        fetch(apiUrl, {
+          method: 'PUT',
+          headers: {
+            'Authorization': `token ${token}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            message: 'Update locker reservation data',
+            content: encodedData,
+            sha: sha  // 기존 파일의 SHA
+          })
+        })
+        .then(response => response.json())
+        .then(data => {
+          console.log('GitHub data updated successfully', data);
+        })
+        .catch(error => {
+          console.error('Error updating data on GitHub', error);
+        });
+      })
+      .catch(error => {
+        console.error('Error fetching file from GitHub', error);
+      });
+    }
+
+    // 데이터를 GitHub에서 불러오는 함수 (초기 로딩)
+    function loadLockersFromGitHub() {
+      const apiUrl = `https://api.github.com/repos/${repoOwner}/${repoName}/contents/${filePath}`;
+      
+      fetch(apiUrl, {
+        method: 'GET',
+        headers: {
+          'Authorization': `token ${token}`,
+          'Accept': 'application/vnd.github.v3+json'
+        }
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.content) {
+          const decodedData = atob(data.content);
+          lockers = JSON.parse(decodedData);  // GitHub에서 가져온 데이터를 JSON으로 파싱
+          renderLockers();
+        } else {
+          lockers = Array(162).fill(null);  // 데이터가 없으면 빈 배열로 초기화
+          renderLockers();
+        }
+      })
+      .catch(error => {
+        console.error('Error loading data from GitHub', error);
+      });
+    }
+
+    // 데이터 업데이트 후 GitHub에 저장
+    function reserveLocker() {
+      const studentId = document.getElementById('studentId').value;
+      const studentName = document.getElementById('studentName').value;
+      const lockerPassword = document.getElementById('lockerPassword').value;
+
+      if (!studentId || !studentName || !lockerPassword) {
+        alert('모든 정보를 입력해 주세요.');
+        return;
+      }
+      lockers[currentLockerIndex] = { studentId, studentName, lockerPassword, timestamp: new Date() };
+
+      updateGitHubData(lockers);  // GitHub에 예약 데이터를 업데이트
+      alert('사물함 예약이 완료되었습니다!');
+      renderLockers();
+      closePopup();
+    }
+
+    // 페이지 로딩 시 GitHub에서 데이터 로딩
+    window.onload = function() {
+      checkAccessTime();
+      loadLockersFromGitHub();  // GitHub에서 데이터를 불러오기
+    };
+  </script>
+
+   <footer>
     <p>© KENTECH 사물함 예약 시스템. All rights reserved.</p>
     <p>Developed by 3기 강민채 (kangminchae@kentech.ac.kr), 3기 김대혁 (kimdaehyeok@kentech.ac.kr)</p>
   </footer>
