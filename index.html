@@ -245,7 +245,7 @@
   <script>
     // Supabase 설정
     const supabaseUrl = 'https://djvoxqjldjnybcpxpovq.supabase.co';  // Supabase 프로젝트 URL
-    const supabaseKey = 'YOUR_SUPABASE_API_KEY';  // Supabase API Key (보안상 별도로 관리)
+    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRqdm94cWpsZGpueWJjcHhwb3ZxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDIyMDI0NjIsImV4cCI6MjA1Nzc3ODQ2Mn0.6OIV_5FZFg_M-9W0YjIXCbBKzjvORujzhulbUo3zG8geyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRqdm94cWpsZGpueWJjcHhwb3ZxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDIyMDI0NjIsImV4cCI6MjA1Nzc3ODQ2Mn0.6OIV_5FZFg_M-9W0YjIXCbBKzjvORujzhulbUo3zG8g';  // Supabase API Key
     const supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
     let lockers = Array(162).fill(null);
@@ -258,12 +258,7 @@
       const now = new Date();
 
       if (now < allowedStartTime) {
-        document.body.innerHTML = `
-          <div style="text-align: center; margin-top: 100px; font-size: 20px;">
-            <p>현재 사이트 접속이 제한되어 있습니다.</p>
-            <p>접속 가능 시간: ${allowedStartTime.toLocaleString("ko-KR")}</p>
-          </div>
-        `;
+        document.body.innerHTML = `현재 접속 불가 시간`;
       } else {
         document.getElementById('mainContent').style.display = 'block';
         loadLockers();
@@ -274,7 +269,7 @@
     async function loadLockers() {
       const { data, error } = await supabase
         .from('lockers')
-        .select('*'); // 'lockers' 테이블에서 모든 데이터를 가져옵니다
+        .select('*');  // 'lockers' 테이블에서 모든 데이터를 가져옵니다
 
       if (error) {
         console.error('Error loading lockers:', error);
@@ -303,7 +298,7 @@
           locker.textContent = '예약됨';
         } else {
           locker.textContent = `사물함 ${i + 1}`;
-          locker.onclick = () => selectLocker(i); // 사물함 클릭 시 선택
+          locker.onclick = () => selectLocker(i);
         }
 
         if (i < 81) {
@@ -316,7 +311,6 @@
       }
     }
 
-    // 사물함 선택 함수 (예약 확인)
     function selectLocker(index) {
       if (lockers[index] && lockers[index].reserved) {
         alert('이미 예약된 사물함입니다.');
@@ -341,20 +335,14 @@
         return;
       }
 
-      // 이미 예약된 사물함일 경우
-      if (lockers[currentLockerIndex] && lockers[currentLockerIndex].reserved) {
-        alert('이미 예약된 사물함입니다.');
-        return;
-      }
-
       const { data, error } = await supabase
         .from('lockers')
         .upsert([{
-          id: currentLockerIndex + 1,  // 사물함 번호
-          student_id: studentId,  // 학번
-          student_name: studentName,  // 이름
-          locker_password: lockerPassword,  // 비밀번호
-          reserved: true,  // 예약 상태
+          id: currentLockerIndex + 1,
+          student_id: studentId,
+          student_name: studentName,
+          locker_password: lockerPassword,
+          reserved: true,
         }]);
 
       if (error) {
@@ -366,98 +354,6 @@
       }
     }
 
-    // 관리자 비밀번호 확인 및 관리자 페이지 표시
-    function verifyAdminPassword() {
-      const inputPassword = document.getElementById('adminPassword').value;
-      if (inputPassword === adminRealPassword) {
-        alert('비밀번호가 맞습니다.');
-        document.getElementById('resetButton').style.display = 'inline-block';
-        document.getElementById('adminTableContainer').style.display = 'block';
-        updateAdminTable();
-      } else {
-        alert('비밀번호가 틀렸습니다.');
-        document.getElementById('resetButton').style.display = 'none';
-        document.getElementById('adminTableContainer').style.display = 'none';
-      }
-    }
-
-    // 관리자 페이지에서 예약된 사물함 목록 표시
-    function updateAdminTable() {
-      const tbody = document.getElementById('reservationTable').getElementsByTagName('tbody')[0];
-      tbody.innerHTML = '';
-
-      lockers.forEach((reservation, index) => {
-        if (reservation) {
-          const row = document.createElement('tr');
-          const cellLocker = document.createElement('td');
-          cellLocker.textContent = reservation.id;
-          const cellStudentId = document.createElement('td');
-          cellStudentId.textContent = reservation.student_id;
-          const cellStudentName = document.createElement('td');
-          cellStudentName.textContent = reservation.student_name;
-
-          const cellAction = document.createElement('td');
-          const cancelButton = document.createElement('button');
-          cancelButton.textContent = '취소';
-          cancelButton.onclick = function() {
-            cancelReservation(index);
-          };
-          cellAction.appendChild(cancelButton);
-
-          row.appendChild(cellLocker);
-          row.appendChild(cellStudentId);
-          row.appendChild(cellStudentName);
-          row.appendChild(cellAction);
-          tbody.appendChild(row);
-        }
-      });
-    }
-
-    // 예약 취소 함수
-    async function cancelReservation(index) {
-      const lockerNumber = lockers[index].id;
-
-      if (confirm(`사물함 ${lockerNumber} 예약을 취소하시겠습니까?`)) {
-        const { data, error } = await supabase
-          .from('lockers')
-          .update({ reserved: false })
-          .eq('id', lockerNumber);
-
-        if (error) {
-          console.error('Error canceling reservation:', error);
-        } else {
-          alert(`사물함 ${lockerNumber} 예약이 취소되었습니다.`);
-          renderLockers();
-          updateAdminTable();
-        }
-      }
-    }
-
-    // 예약 상태 리셋
-    function resetLockers() {
-      if (!confirm("정말로 모든 예약 정보를 리셋하시겠습니까?")) return;
-      lockers = Array(162).fill(null);
-      supabase
-        .from('lockers')
-        .delete()
-        .then(() => {
-          alert('예약 상태가 리셋되었습니다.');
-          renderLockers();
-          updateAdminTable();
-        })
-        .catch((error) => console.error('Error resetting lockers:', error));
-    }
-
-    // 관리자 페이지 뒤로가기
-    function exitAdmin() {
-      document.getElementById('mainContent').style.display = 'block';
-      document.querySelector('.admin-container').style.display = 'none';
-      document.getElementById('adminPassword').value = '';
-      document.getElementById('resetButton').style.display = 'none';
-      document.getElementById('adminTableContainer').style.display = 'none';
-    }
-
-    // 페이지 로드 시 함수 실행
     document.getElementById('adminLink').addEventListener('click', function() {
       document.getElementById('mainContent').style.display = 'none';
       document.querySelector('.admin-container').style.display = 'block';
@@ -468,7 +364,7 @@
       loadLockers();
     };
   </script>
-
+  
   <footer>
     <p>© KENTECH 사물함 예약 시스템. All rights reserved.</p>
     <p>Developed by 3기 강민채 (kangminchae@kentech.ac.kr), 3기 김대혁 (kimdaehyeok@kentech.ac.kr)</p>
