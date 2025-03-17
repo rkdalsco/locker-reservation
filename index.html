@@ -258,11 +258,10 @@
     <button onclick="exitAdmin()">뒤로가기</button>
     <br>
   </div>
+  <script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
+  import { getDatabase } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js";
 
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js"></script>
-
-  <script>
     // Firebase 설정
     const firebaseConfig = {
         apiKey: "AIzaSyCD_LnKUyQHpUEOTh4WpS0tmMXVhw6frqE",
@@ -273,7 +272,7 @@
   	appId: "1:796300220242:web:9a2ff410834397af7f4c8b",
   	measurementId: "G-VDER7M360E"
     };
-
+  
     const app = firebase.initializeApp(firebaseConfig);
     const database = firebase.database(app);
 
