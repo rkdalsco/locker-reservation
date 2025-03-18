@@ -241,13 +241,16 @@
     <br>
   </div>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js" defer></script>
 
 <script>
   document.addEventListener('DOMContentLoaded', () => {
   const supabaseUrl = 'https://djvoxqjldjnybcpxpovq.supabase.co';  // Supabase 프로젝트 URL
   const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRqdm94cWpsZGpueWJjcHhwb3ZxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDIyMDI0NjIsImV4cCI6MjA1Nzc3ODQ2Mn0.6OIV_5FZFg_M-9W0YjIXCbBKzjvORujzhulbUo3zG8g';  // Supabase API Key
   window.supabase = supabase.createClient(supabaseUrl, supabaseKey);
+
+  loadlockers();
+    
     });
   
   let lockers = Array(162).fill(null);
