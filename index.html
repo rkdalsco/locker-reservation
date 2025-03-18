@@ -272,68 +272,64 @@
 
 
   // Supabase에서 사물함 데이터 로드
- async function loadLockers() {
-  console.log('🔄 사물함 데이터를 불러오는 중...');
+async function loadLockers() {
+    console.log('🔄 사물함 데이터를 불러오는 중...');
 
-  const { data, error } = await supabase
-    .from('lockers')
-    .select('*');
+    const { data, error } = await supabase
+        .from('lockers')
+        .select('*')
+        .order('id', { ascending: true });
 
-  if (error) {
-    console.error('❌ Supabase에서 데이터를 불러오는 중 오류 발생:', error);
-    lockers = Array(162).fill(null);
-  } else {
-    console.log('✅ 불러온 사물함 데이터:', data);
-    lockers = data;
-  }
+    if (error) {
+        console.error('❌ Supabase에서 데이터를 불러오는 중 오류 발생:', error);
+        lockers = Array(162).fill(null);
+    } else {
+        console.log('✅ 불러온 사물함 데이터:', data);
+        lockers = data;
+    }
 
-  if (!lockers || lockers.length === 0) {
-    console.warn('⚠️ Supabase에서 데이터를 가져왔지만 비어 있습니다.');
-  }
-
-  renderLockers();
+    renderLockers();  // ✅ 데이터 불러온 후 다시 그리기
 }
 
 
   // 사물함을 그리드에 렌더링하는 함수
- function renderLockers() {
-  console.log('🔄 사물함 그리드 렌더링 시작...');
-  
-  const container1 = document.getElementById('lockerContainer1');
-  const container2 = document.getElementById('lockerContainer2');
-  const container3 = document.getElementById('lockerContainer3');
-  container1.innerHTML = '';
-  container2.innerHTML = '';
-  container3.innerHTML = '';
+function renderLockers() {
+    console.log('🔄 사물함 그리드 렌더링 시작...');
+    
+    const container1 = document.getElementById('lockerContainer1');
+    const container2 = document.getElementById('lockerContainer2');
+    const container3 = document.getElementById('lockerContainer3');
+    container1.innerHTML = '';
+    container2.innerHTML = '';
+    container3.innerHTML = '';
 
-  if (!lockers || lockers.length === 0) {
-    console.warn('⚠️ 사물함 데이터가 비어 있습니다.');
-    return;
-  }
-
-  for (let i = 0; i < lockers.length; i++) {
-    const locker = document.createElement('div');
-    locker.classList.add('locker');
-
-    if (lockers[i] && lockers[i].reserved) {
-      locker.classList.add('reserved');
-      locker.textContent = '예약됨';
-    } else {
-      locker.textContent = `사물함 ${i + 1}`;
-      locker.onclick = () => selectLocker(i);
+    if (!lockers || lockers.length === 0) {
+        console.warn('⚠️ Supabase에서 데이터를 가져왔지만 비어 있습니다.');
+        return;
     }
 
-    if (i < 81) {
-      container1.appendChild(locker);
-    } else if (i < 120) {
-      container2.appendChild(locker);
-    } else {
-      container3.appendChild(locker);
+    for (let i = 0; i < lockers.length; i++) {
+        const locker = document.createElement('div');
+        locker.classList.add('locker');
+
+        if (lockers[i] && lockers[i].reserved) {
+            locker.classList.add('reserved');
+            locker.textContent = '예약됨';
+        } else {
+            locker.textContent = `사물함 ${i + 1}`;
+            locker.onclick = () => selectLocker(i);
+        }
+
+        if (i < 81) {
+            container1.appendChild(locker);
+        } else if (i < 120) {
+            container2.appendChild(locker);
+        } else {
+            container3.appendChild(locker);
+        }
     }
-  }
-  console.log('✅ 사물함 그리드 렌더링 완료');
+    console.log('✅ 사물함 그리드 렌더링 완료');
 }
-
 
   function selectLocker(index) {
     if (lockers[index] && lockers[index].reserved) {
@@ -349,38 +345,39 @@
   }
 
   // 사물함 예약 함수
-  async function reserveLocker() {
+async function reserveLocker() {
     const studentId = document.getElementById('studentId').value;
     const studentName = document.getElementById('studentName').value;
     const lockerPassword = document.getElementById('lockerPassword').value;
 
     if (!studentId || !studentName || !lockerPassword) {
-      alert('모든 정보를 입력해 주세요.');
-      return;
+        alert('모든 정보를 입력해 주세요.');
+        return;
     }
     if (lockers[currentLockerIndex] && lockers[currentLockerIndex].reserved) {
-      alert('이미 예약된 사물함입니다.');
-      return;
+        alert('이미 예약된 사물함입니다.');
+        return;
     }
 
     const { data, error } = await supabase
-      .from('lockers')
-      .upsert([{
-        id: currentLockerIndex + 1,
-        student_id: studentId,
-        student_name: studentName,
-        locker_password: lockerPassword,
-        reserved: true,
-      }]);
+        .from('lockers')
+        .upsert([{
+            id: currentLockerIndex + 1,
+            student_id: studentId,
+            student_name: studentName,
+            locker_password: lockerPassword,
+            reserved: true,
+        }]);
 
     if (error) {
-      console.error('Error reserving locker:', error);
+        console.error('Error reserving locker:', error);
     } else {
-      alert('사물함 예약이 완료되었습니다!');
-      renderLockers();
-      closePopup();
+        alert('사물함 예약이 완료되었습니다!');
+        await loadLockers();  // ✅ 데이터 갱신 후 다시 불러오기
+        renderLockers();      // ✅ 화면에 즉시 반영
+        closePopup();
     }
-  }
+}
 
   function verifyAdminPassword() {
     const inputPassword = document.getElementById('adminPassword').value;
@@ -396,69 +393,75 @@
     }
   }
 
-  function updateAdminTable() {
+function updateAdminTable() {
     const tbody = document.getElementById('reservationTable').getElementsByTagName('tbody')[0];
     tbody.innerHTML = '';
 
     lockers.forEach((reservation, index) => {
-      if (reservation) {
-        const row = document.createElement('tr');
-        const cellLocker = document.createElement('td');
-        cellLocker.textContent = reservation.id;
-        const cellStudentId = document.createElement('td');
-        cellStudentId.textContent = reservation.student_id;
-        const cellStudentName = document.createElement('td');
-        cellStudentName.textContent = reservation.student_name;
+        if (reservation && reservation.reserved) {
+            const row = document.createElement('tr');
+            const cellLocker = document.createElement('td');
+            cellLocker.textContent = reservation.id;
+            const cellStudentId = document.createElement('td');
+            cellStudentId.textContent = reservation.student_id;
+            const cellStudentName = document.createElement('td');
+            cellStudentName.textContent = reservation.student_name;
 
-        const cellAction = document.createElement('td');
-        const cancelButton = document.createElement('button');
-        cancelButton.textContent = '취소';
-        cancelButton.onclick = function() {
-          cancelReservation(index);
-        };
-        cellAction.appendChild(cancelButton);
+            const cellAction = document.createElement('td');
+            const cancelButton = document.createElement('button');
+            cancelButton.textContent = '취소';
+            cancelButton.onclick = function () {
+                cancelReservation(index);
+            };
+            cellAction.appendChild(cancelButton);
 
-        row.appendChild(cellLocker);
-        row.appendChild(cellStudentId);
-        row.appendChild(cellStudentName);
-        row.appendChild(cellAction);
-        tbody.appendChild(row);
-      }
+            row.appendChild(cellLocker);
+            row.appendChild(cellStudentId);
+            row.appendChild(cellStudentName);
+            row.appendChild(cellAction);
+            tbody.appendChild(row);
+        }
     });
-  }
+}
 
-  async function cancelReservation(index) {
+
+ async function cancelReservation(index) {
     const lockerNumber = lockers[index].id;
 
     if (confirm(`사물함 ${lockerNumber} 예약을 취소하시겠습니까?`)) {
-      const { data, error } = await supabase
-        .from('lockers')
-        .update({ reserved: false })
-        .eq('id', lockerNumber);
+        const { data, error } = await supabase
+            .from('lockers')
+            .update({ reserved: false, student_id: null, student_name: null, locker_password: null })
+            .eq('id', lockerNumber);
 
-      if (error) {
-        console.error('Error canceling reservation:', error);
-      } else {
-        alert(`사물함 ${lockerNumber} 예약이 취소되었습니다.`);
-        renderLockers();
-        updateAdminTable();
-      }
+        if (error) {
+            console.error('Error canceling reservation:', error);
+        } else {
+            alert(`사물함 ${lockerNumber} 예약이 취소되었습니다.`);
+            await loadLockers();  // ✅ 데이터 갱신 후 다시 불러오기
+            renderLockers();      // ✅ UI 업데이트
+            updateAdminTable();   // ✅ 관리자 테이블 업데이트
+        }
     }
-  }
+}
 
-  function resetLockers() {
+async function resetLockers() {
     if (!confirm("정말로 모든 예약 정보를 리셋하시겠습니까?")) return;
-    lockers = Array(162).fill(null);
-    supabase
-      .from('lockers')
-      .delete()
-      .then(() => {
-        alert('예약 상태가 리셋되었습니다.');
-        renderLockers();
-        updateAdminTable();
-      })
-      .catch((error) => console.error('Error resetting lockers:', error));
-  }
+
+    const { error } = await supabase
+        .from('lockers')
+        .update({ reserved: false, student_id: null, student_name: null, locker_password: null });
+
+    if (error) {
+        console.error('Error resetting lockers:', error);
+    } else {
+        alert('모든 사물함 예약이 초기화되었습니다.');
+        await loadLockers();  // ✅ 데이터 갱신 후 다시 불러오기
+        renderLockers();      // ✅ UI 업데이트
+        updateAdminTable();   // ✅ 관리자 테이블 업데이트
+    }
+}
+  
 
   function exitAdmin() {
     document.getElementById('mainContent').style.display = 'block';
