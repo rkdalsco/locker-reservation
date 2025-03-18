@@ -257,13 +257,12 @@
   let currentLockerIndex = null;
   const adminRealPassword = 'kentech1234';
 
-  // 시간 제한 설정: 2025년 3월 17일 오전 10시
 function checkAccessTime() {
-  const allowedStartTime = new Date(2025, 2, 19, 10, 0);  // 2025년 3월 19일 오전 10시
+  const allowedStartTime = new Date(Date.UTC(2025, 2, 19, 10, 0, 0));  // 2025년 3월 19일 오전 10시 (UTC 기준)
   const now = new Date();
 
   if (now < allowedStartTime) {
-    document.body.innerHTML = `<h2>현재 접속 불가 시간입니다. ${allowedStartTime.toLocaleString()} 이후에 접속해 주세요.</h2>`;
+    document.body.innerHTML = `<h2>현재 접속 불가 시간입니다. ${allowedStartTime.toLocaleString('ko-KR', { timeZone: 'Asia/Seoul' })} 이후에 접속해 주세요.</h2>`;
   } else {
     document.getElementById('mainContent').style.display = 'block';  
     loadLockers();  // 🚀 mainContent가 보이도록 수정한 후, 사물함 로딩 실행
