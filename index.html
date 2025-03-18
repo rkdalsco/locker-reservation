@@ -400,25 +400,25 @@ function updateAdminTable() {
 }
 
 async function cancelReservation(lockerId) {
-    if (confirm(`사물함 ${lockerId} 예약을 취소하시겠습니까?`)) {
-        const { error } = await supabase
-            .from('lockers')
-            .update({
-                reserved: false,
-                student_id: null,
-                student_name: null,
-                locker_password: null
-            })
-            .eq('id', lockerId);
+    if (!confirm(`사물함 ${lockerId} 예약을 취소하시겠습니까?`)) return;
 
-        if (error) {
-            console.error('Error canceling reservation:', error);
-        } else {
-            alert(`${lockerId}번 사물함 예약이 취소되었습니다.`);
-            await loadLockers();
-            renderLockers();
-            updateAdminTable();
-        }
+    const { error } = await supabase
+        .from('lockers')
+        .update({
+            reserved: false, // ✅ 예약 상태 해제
+            student_id: null,
+            student_name: null,
+            locker_password: null
+        })
+        .eq('id', lockerId);
+
+    if (error) {
+        console.error(`❌ 사물함 ${lockerId} 취소 실패:`, error);
+    } else {
+        alert(`✅ 사물함 ${lockerId} 예약이 취소되었습니다.`);
+        await loadLockers();  // ✅ 데이터 다시 불러오기
+        renderLockers();      // ✅ UI 업데이트
+        updateAdminTable();   // ✅ 관리자 페이지 업데이트
     }
 }
 
@@ -427,7 +427,7 @@ function updateAdminTable() {
     tbody.innerHTML = '';
 
     lockers.forEach((locker) => {
-        if (locker.reserved) {
+        if (locker.reserved) { // ✅ 예약된 사물함만 표시
             const row = document.createElement('tr');
             row.innerHTML = `
                 <td>${locker.id}</td>
@@ -441,24 +441,24 @@ function updateAdminTable() {
 }
 
 async function resetLockers() {
-    if (!confirm("정말로 모든 예약 정보를 리셋하시겠습니까?")) return;
+    if (!confirm("⚠️ 모든 예약을 초기화하시겠습니까?")) return;
 
     const { error } = await supabase
         .from('lockers')
         .update({
-            reserved: false,
+            reserved: false, // ✅ 모든 사물함 예약 해제
             student_id: null,
             student_name: null,
             locker_password: null
         });
 
     if (error) {
-        console.error('Error resetting lockers:', error);
+        console.error('❌ 모든 사물함 초기화 실패:', error);
     } else {
-        alert('모든 사물함 예약이 초기화되었습니다.');
-        await loadLockers();
-        renderLockers();
-        updateAdminTable();
+        alert('✅ 모든 사물함 예약이 초기화되었습니다.');
+        await loadLockers();  // ✅ 최신 데이터 불러오기
+        renderLockers();      // ✅ UI 업데이트
+        updateAdminTable();   // ✅ 관리자 페이지도 초기화
     }
 }
   
