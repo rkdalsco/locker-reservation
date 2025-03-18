@@ -294,7 +294,6 @@ async function loadLockers() {
 
 
   // 사물함을 그리드에 렌더링하는 함수
-// ✅ 사물함을 화면에 다시 그리는 함수 (그리드 표시)
 function renderLockers() {
     console.log('🔄 사물함 그리드 렌더링 시작...');
     
@@ -500,7 +499,8 @@ async function resetLockers() {
     checkAccessTime();
     loadLockers();
   };
-</script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+<script src="script.js"></script> <!-- ✅ script.js가 정상적으로 로드되는지 확인 -->
 
   
   <footer>
