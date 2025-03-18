@@ -458,58 +458,6 @@
     checkAccessTime();
     loadLockers();
   };
-  async function loadLockers() {
-    console.log("🔄 Supabase에서 데이터 불러오는 중...");
-
-    const { data, error } = await window.supabase.from('lockers').select('*');
-
-    if (error) {
-        console.error('❌ 데이터 불러오기 오류:', error);
-    } else {
-        console.log("✅ 불러온 데이터:", data);
-        lockers = data;
-    }
-    renderLockers();
-}
-function renderLockers() {
-    console.log("🖥️ 사물함을 화면에 표시 중...");
-    
-    const container1 = document.getElementById('lockerContainer1');
-    const container2 = document.getElementById('lockerContainer2');
-    const container3 = document.getElementById('lockerContainer3');
-
-    if (!container1 || !container2 || !container3) {
-        console.error("❌ 컨테이너 요소를 찾을 수 없음!");
-        return;
-    }
-
-    container1.innerHTML = '';
-    container2.innerHTML = '';
-    container3.innerHTML = '';
-
-    for (let i = 0; i < lockers.length; i++) {
-        const locker = document.createElement('div');
-        locker.classList.add('locker');
-
-        if (lockers[i].reserved) {
-            locker.classList.add('reserved');
-            locker.textContent = '예약됨';
-        } else {
-            locker.textContent = `사물함 ${i + 1}`;
-            locker.onclick = () => selectLocker(i);
-        }
-
-        if (i < 81) {
-            container1.appendChild(locker);
-        } else if (i < 120) {
-            container2.appendChild(locker);
-        } else {
-            container3.appendChild(locker);
-        }
-    }
-    console.log("✅ 사물함 그리드 렌더링 완료!");
-}
-
 </script>
 
   
