@@ -391,42 +391,29 @@ function updateAdminTable() {
     const tbody = document.getElementById('reservationTable').getElementsByTagName('tbody')[0];
     tbody.innerHTML = '';
 
-    lockers.forEach((reservation, index) => {
-        if (reservation && reservation.reserved) {
+    lockers.forEach((locker) => {
+        if (locker.reserved) { // ✅ 예약된 사물함만 표시
             const row = document.createElement('tr');
-            const cellLocker = document.createElement('td');
-            cellLocker.textContent = reservation.id;
-            const cellStudentId = document.createElement('td');
-            cellStudentId.textContent = reservation.student_id;
-            const cellStudentName = document.createElement('td');
-            cellStudentName.textContent = reservation.student_name;
-
-            const cellAction = document.createElement('td');
-            const cancelButton = document.createElement('button');
-            cancelButton.textContent = '취소';
-            cancelButton.onclick = function () {
-                cancelReservation(index);
-            };
-            cellAction.appendChild(cancelButton);
-
-            row.appendChild(cellLocker);
-            row.appendChild(cellStudentId);
-            row.appendChild(cellStudentName);
-            row.appendChild(cellAction);
+            row.innerHTML = `
+                <td>${locker.id}</td>
+                <td>${locker.student_id}</td>
+                <td>${locker.student_name}</td>
+                <td><button onclick="cancelReservation(${locker.id})">취소</button></td>
+            `;
             tbody.appendChild(row);
         }
     });
 }
-
 async function cancelReservation(lockerId) {
     if (!confirm(`사물함 ${lockerId} 예약을 취소하시겠습니까?`)) return;
 
+    // Supabase SQL DELETE 실행
     const { error } = await supabase
         .from('lockers')
         .update({
-            reserved: false, // ✅ 예약 상태 해제
-            student_id: null,
-            student_name: null,
+            reserved: false, 
+            student_id: null, 
+            student_name: null, 
             locker_password: null
         })
         .eq('id', lockerId);
@@ -435,13 +422,13 @@ async function cancelReservation(lockerId) {
         console.error(`❌ 사물함 ${lockerId} 취소 실패:`, error);
     } else {
         alert(`✅ 사물함 ${lockerId} 예약이 취소되었습니다.`);
-        await loadLockers();  // ✅ 데이터 다시 불러오기
+        await loadLockers();  // ✅ 최신 데이터 불러오기
         renderLockers();      // ✅ UI 업데이트
         updateAdminTable();   // ✅ 관리자 페이지 업데이트
     }
 }
 
-function updateAdminTable() {
+  function updateAdminTable() {
     const tbody = document.getElementById('reservationTable').getElementsByTagName('tbody')[0];
     tbody.innerHTML = '';
 
@@ -462,12 +449,13 @@ function updateAdminTable() {
 async function resetLockers() {
     if (!confirm("⚠️ 모든 예약을 초기화하시겠습니까?")) return;
 
+    // Supabase SQL UPDATE로 모든 사물함 초기화
     const { error } = await supabase
         .from('lockers')
         .update({
-            reserved: false, // ✅ 모든 사물함 예약 해제
-            student_id: null,
-            student_name: null,
+            reserved: false, 
+            student_id: null, 
+            student_name: null, 
             locker_password: null
         });
 
@@ -480,7 +468,6 @@ async function resetLockers() {
         updateAdminTable();   // ✅ 관리자 페이지도 초기화
     }
 }
-  
 
   function exitAdmin() {
     document.getElementById('mainContent').style.display = 'block';
