@@ -249,7 +249,7 @@
   const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRqdm94cWpsZGpueWJjcHhwb3ZxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDIyMDI0NjIsImV4cCI6MjA1Nzc3ODQ2Mn0.6OIV_5FZFg_M-9W0YjIXCbBKzjvORujzhulbUo3zG8g';  // Supabase API Key
   window.supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
-  loadlockers();
+  loadLockers();
     
     });
   
@@ -272,23 +272,28 @@
 
 
   // Supabase에서 사물함 데이터 로드
-  async function loadLockers() {
+ async function loadLockers() {
   console.log('🔄 사물함 데이터를 불러오는 중...');
 
   const { data, error } = await supabase
     .from('lockers')
-    .select('*');  // Supabase에서 모든 사물함 데이터를 가져옴
+    .select('*');
 
   if (error) {
-    console.error('❌ 사물함 데이터를 불러오는 중 오류 발생:', error);
+    console.error('❌ Supabase에서 데이터를 불러오는 중 오류 발생:', error);
     lockers = Array(162).fill(null);
   } else {
     console.log('✅ 불러온 사물함 데이터:', data);
     lockers = data;
   }
 
-  renderLockers();  // 데이터가 정상적으로 로드된 후, 사물함 그리드 생성
+  if (!lockers || lockers.length === 0) {
+    console.warn('⚠️ Supabase에서 데이터를 가져왔지만 비어 있습니다.');
+  }
+
+  renderLockers();
 }
+
 
   // 사물함을 그리드에 렌더링하는 함수
  function renderLockers() {
