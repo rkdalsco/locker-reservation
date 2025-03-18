@@ -294,25 +294,45 @@ async function loadLockers() {
 
 
   // 사물함을 그리드에 렌더링하는 함수
-async function loadLockers() {
-    console.log('🔄 사물함 데이터를 불러오는 중...');
+// ✅ 사물함을 화면에 다시 그리는 함수 (그리드 표시)
+function renderLockers() {
+    console.log('🔄 사물함 그리드 렌더링 시작...');
+    
+    const container1 = document.getElementById('lockerContainer1');
+    const container2 = document.getElementById('lockerContainer2');
+    const container3 = document.getElementById('lockerContainer3');
+    container1.innerHTML = '';
+    container2.innerHTML = '';
+    container3.innerHTML = '';
 
-    const { data, error } = await supabase
-        .from('lockers')
-        .select('*')
-        .order('id', { ascending: true }); // 🔹 ID 순서대로 정렬하여 가져옴
-
-    if (error) {
-        console.error('❌ Supabase에서 데이터를 불러오는 중 오류 발생:', error);
-        lockers = Array(162).fill(null);
-    } else {
-        console.log('✅ 불러온 사물함 데이터:', data);
-        lockers = data;
+    if (!lockers || lockers.length === 0) {
+        console.warn('⚠️ Supabase에서 데이터를 가져왔지만 비어 있습니다.');
+        return;
     }
 
-    renderLockers(); // ✅ 데이터 불러온 후 UI 업데이트
-    updateAdminTable(); // ✅ 관리자 페이지 업데이트
+    for (let i = 0; i < lockers.length; i++) {
+        const locker = document.createElement('div');
+        locker.classList.add('locker');
+
+        if (lockers[i] && lockers[i].reserved) {
+            locker.classList.add('reserved');
+            locker.textContent = `${lockers[i].id}번 (예약됨)`;
+        } else {
+            locker.textContent = `사물함 ${lockers[i].id}`;
+            locker.onclick = () => selectLocker(lockers[i].id); // ✅ ID 기준으로 선택
+        }
+
+        if (lockers[i].id <= 81) {
+            container1.appendChild(locker);
+        } else if (lockers[i].id <= 120) {
+            container2.appendChild(locker);
+        } else {
+            container3.appendChild(locker);
+        }
+    }
+    console.log('✅ 사물함 그리드 렌더링 완료');
 }
+
 
 function selectLocker(lockerId) {
     if (lockers.find(locker => locker.id === lockerId).reserved) {
